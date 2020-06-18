@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import axios from 'axios';
 
 import Form from './Form';
 import User from './User';
@@ -9,25 +9,29 @@ import formSchema from './validation/formSchema';
 import * as Yup from 'yup';
 
 const initialUser = [{
-  name: 'name',
+  first_name: 'name',
+  last_name: 'name',
   email: 'email@email.com',
   password: '1234567890',
   tos: true,
 }];
 
 const initialFormValues = {
-  name: '',
+  first_name: '',
+  last_name: '',
   email: '',
   password: '',
   tos: false,
 };
 
 const initialFormErrors = {
-  name: '',
+  first_name: '',
+  last_name: '',
   email: '',
   password: '',
   tos: '',
 };
+
 
 
 
@@ -67,37 +71,76 @@ function App() {
   };
 
   const onCheckboxChange = evt => {
-    const { name, checked } = evt.target
     setFormValues({
       ...formValues,
       tos: !formValues.tos
     })
   };
+  
+  
+  const getUsers = () => {
+    axios.get('https://reqres.in/api/users')
+      .then(res => {
+        setUsers(res.data.data);
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
+
+  const postUsers = newUser => {
+    axios.post('https://reqres.in/api/users', newUser)
+      .then(response => {
+        setUsers([response.data, ...users]);
+        debugger
+      })
+      .catch(err => {
+        console.log(err)
+      })
+      .finally(() => {
+        setFormValues(initialFormValues);
+      })
+  }
 
   const onSubmit = evt => {
     evt.preventDefault();
-    console.log(evt);
 
     const newUser = {
-      name: formValues.name.trim(),
+      first_name: formValues.first_name.trim(),
+      last_name: formValues.last_name.trim(),
       email: formValues.email.trim(),
       password: formValues.password,
       tos: formValues.tos,
     };
 
-    setUsers(props => [newUser, ...props]); // add new user to list
+    setUsers(props => [newUser, ...props]);
 
     setFormValues(initialFormValues);
+
+    postUsers(newUser);
   };
-  
+
+  useEffect(() => {
+    getUsers()
+  }, [])
+
+  useEffect(() => {
+
+    formSchema.isValid(formValues).then(props => {
+      setDisabled(!props)
+    })
+  }, [formValues])
+
+  let count = -1
 
   return (
     <div className="App">
       <header><h1>Users</h1></header>
-      <Form values = {formValues} onInputChange = {onInputChange} onCheckboxChange = {onCheckboxChange} onSubmit = {onSubmit}/>
+      <Form values = {formValues} disabled={disabled} onInputChange = {onInputChange} onCheckboxChange = {onCheckboxChange} onSubmit = {onSubmit} errors={formErrors}/>
       {users.map(user => {
+        count ++
         return (
-          <User details={user} />
+          <User details={user} key={count} />
       )})}
     </div>
   );

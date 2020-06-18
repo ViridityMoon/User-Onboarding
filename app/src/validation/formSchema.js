@@ -1,11 +1,16 @@
 import * as Yup from "yup";
 
 const formSchema = Yup.object().shape({
-  name: Yup
+  first_name: Yup
     .string()
-    .min(3, "Name entry must be at least 3 characters long")
-    .max(35, "Name entry may be no longer than 35 characters")
-    .required("Name is Required"),
+    .min(3, "First Name entry must be at least 3 characters long")
+    .max(35, "First Name entry may be no longer than 35 characters")
+    .required("First Name is Required"),
+  last_name: Yup
+    .string()
+    .min(3, "Last Name entry must be at least 3 characters long")
+    .max(35, "Last Name entry may be no longer than 35 characters")
+    .required("Last Name is Required"),
   email: Yup
     .string()
     .email("Must be a valid email address")
