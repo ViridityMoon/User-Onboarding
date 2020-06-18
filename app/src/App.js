@@ -3,13 +3,17 @@ import logo from './logo.svg';
 import './App.css';
 
 import Form from './Form';
+import User from './User';
+
+import formSchema from './validation/formSchema';
+import * as Yup from 'yup';
 
 const initialUser = [{
   name: 'name',
   email: 'email@email.com',
   password: '1234567890',
   tos: true,
-}]
+}];
 
 const initialFormValues = {
   name: '',
@@ -60,39 +64,44 @@ function App() {
       ...formValues,
       [name]: value
     })
-  }
+  };
 
   const onCheckboxChange = evt => {
     const { name, checked } = evt.target
     setFormValues({
       ...formValues,
-      tos: {
-        ...formValues.tos,
-        [name]: checked,
-      }
+      tos: !formValues.tos
     })
-  }
+  };
 
   const onSubmit = evt => {
-    evt.preventDefault()
+    evt.preventDefault();
+    console.log(evt);
 
     const newUser = {
-      name: formValues.name,
-      email: formValues.email,
+      name: formValues.name.trim(),
+      email: formValues.email.trim(),
       password: formValues.password,
       tos: formValues.tos,
-    }
-  }
+    };
+
+    setUsers(props => [newUser, ...props]); // add new user to list
+
+    setFormValues(initialFormValues);
+  };
   
 
   return (
     <div className="App">
       <header><h1>Users</h1></header>
-      <Form values = {formValues} onInputChange = {onInputChange} onSubmit = {onSubmit}/>
-
+      <Form values = {formValues} onInputChange = {onInputChange} onCheckboxChange = {onCheckboxChange} onSubmit = {onSubmit}/>
+      {users.map(user => {
+        return (
+          <User details={user} />
+      )})}
     </div>
   );
-}
+};
 
 
 export default App;
